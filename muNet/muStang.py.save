@@ -133,10 +133,6 @@ while True :
 		inpFile.close()
 		time.sleep(30)
 
-	ackFile = open('/home/DatiTB/DTC/ACK_' + sys.argv[1], 'w')
-	ackFile.write('0')
-	ackFile.close()
-
 	print ('\n\n' + TimeS + ' MURAVES_' + sys.argv[1] + '@Vesuvio')
 	print ('__________________________________________________________\n')
 	
@@ -290,13 +286,12 @@ while True :
 	inpFile.close()
 	RUNflag = s[0].split('\t')
 	RUNflag[1] = RUNflag[1].replace('\n', '')
-	print('*** Wait to go again... ***')
-	if (int(RUNflag[1]) == 1):
-		print('*** STOP Condition found!!! ***\n')
-	else :
-		print('*** Keep going! ***\n')
-	ackFile = open('/home/DatiTB/DTC/ACK_' + sys.argv[1], 'w')
-	ackFile.write('1')
-	ackFile.close()
+	if (int(RUNflag[1]) == 0):
+		print('*** Wait to go again ***\n')
+		#arg = ['./wait2go', broadPort]
+		#subprocess.call(arg)
+	else : 
+		print('*** STOP Condition found ***\n')
+
 	arg = ['./wait2go', broadPort]
 	subprocess.call(arg)

@@ -4,6 +4,7 @@ import subprocess
 import time
 
 skList = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']
+#skList = ['5']
 
 for Sk in skList :
 	inputF = open('Core/EASI_Probe.txt', 'r')
@@ -68,7 +69,7 @@ for Sk in skList :
 	
 subprocess.call("./Reset")
 
-for dac10 in range (int(sys.argv[4]),int(sys.argv[3])-1,-5):
+for dac10 in range (700,299,-5):
 	dac8 = 255
 		
 	while (dac8 >= 255):
@@ -121,6 +122,8 @@ for dac10 in range (int(sys.argv[4]),int(sys.argv[3])-1,-5):
 		s[11] = '7b05\n'
 		s[12] = 'a0c8\n'
 		s[13] = 'ed31\n'
+		#s[14] = '98cc\n'
+		#s[15] = '8e5b\n'
 		s[14] = '98c8\n'
 		s[15] = '065b\n'
 		s[16] = '2391\n'
@@ -134,6 +137,7 @@ for dac10 in range (int(sys.argv[4]),int(sys.argv[3])-1,-5):
 		s[24] = '8e47\n'
 		s[25] = '2391\n'
 		s[26] = 'c8e8\n'
+		#s[27] = '3239\n'
 		s[27] = '2019\n'
 		s[28] = '1c8e\n'
 		s[29] = '4700\n'
@@ -223,8 +227,6 @@ for dac10 in range (int(sys.argv[4]),int(sys.argv[3])-1,-5):
 			outputF.write(line)
 		outputF.close()
 
-		arg = ['python3', 'HV_Set.py', '31.1', sys.argv[2]]
-		subprocess.call(arg)
 
 		for Sk in skList :
 			time.sleep(1)
@@ -278,10 +280,9 @@ for dac10 in range (int(sys.argv[4]),int(sys.argv[3])-1,-5):
 		for Sk in skList :
 			arg = ["./SendFSlaves", "Conf/ReadSlave_" + Sk + ".txt"]
 			subprocess.call(arg)
-			arg = ["./ReadMaster_count", sys.argv[1]]
-			subprocess.call(arg)
-			inp = open('/home/DatiTB/' + sys.argv[1] + '/SlaveCounts', 'r')
-			outp = open('Counts_VESUVIO_17OCT19_ROSSO_20', 'a')
+			subprocess.call("./ReadMaster_count")
+			inp = open('/home/DatiTB/SlaveCounts', 'r')
+			outp = open('Counts_LAB', 'a')
 
 			r = inp.readline()
 			r = r.replace('\n', '')
@@ -291,7 +292,7 @@ for dac10 in range (int(sys.argv[4]),int(sys.argv[3])-1,-5):
 				r = inp.readline()
 			inp.close()
 			outp.close()
-			arg = ['rm', '/home/DatiTB/' + sys.argv[1] + '/SlaveCounts']
+			arg = ['rm', '/home/DatiTB/SlaveCounts']
 			subprocess.call(arg)
 			print ('END\n')
 			#subprocess.call("./Reset")

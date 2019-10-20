@@ -63,24 +63,28 @@ for Sk in skList :
 
 subprocess.call("./Reset")
 
+ATC_mem = -1
+
 while True : 
 	dac10 = 2610
 	dac8 = 1977
 		
 	while True:
 		print ('----------------------------')
-		print ('DAC8 value  : ' + str(dac8))
-		print ('DAC10 value : ' + str(dac10))
+		print ('WP MEMORY : ' + str(ATC_mem))
 		print ('----------------------------')
-
-		tFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'r')
+		arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'ENV.txt']
+		subprocess.call(arg)
+		tFile = open('ENV.txt', 'r')
 		s = tFile.readlines()
 		tFile.close()
 		RUNflag = s[0].split('\t')
 		RUNflag[1] = RUNflag[1].replace('\n', '')
 		while (int(RUNflag[1]) == 1) : 
 			time.sleep(60)
-			tFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'r')
+			arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'ENV.txt']
+			subprocess.call(arg)
+			tFile = open('ENV.txt', 'r')
 			s = tFile.readlines()
 			tFile.close()
 			RUNflag = s[0].split('\t')
@@ -89,6 +93,9 @@ while True :
 		s[4] = s[4].replace('$WP\t', '')
 		workpoint = s[4].replace('\n', '')
 		ATC = int(workpoint)
+		if (ATC != ATC_mem) :
+			ATC_mem = ATC
+			break 
 
 		inputF = open('EASIprog.c', 'r')
 		outputF = open('EASIprog.out', 'w')
@@ -125,6 +132,8 @@ while True :
 			DAC10file = open('/home/muBot/WPset/WP_' + str(ATC) + 'deg', 'r')
 			s = DAC10file.readlines()
 			DAC10file.close()
+			arg = ['cp', '/home/muBot/WPset/WP_' + str(ATC) + 'deg', '/home/DatiTB/DTC/WP_' + sys.argv[3]]
+			subprocess.call(arg)
 			for ii in range(16) :
 				DAC10.append(s[ii].split('\t'))
 			dac10List = [DAC10[0][1].replace('\n', ''), DAC10[1][1].replace('\n', ''), DAC10[2][1].replace('\n', ''), DAC10[3][1].replace('\n', ''), DAC10[4][1].replace('\n', ''), DAC10[5][1].replace('\n', ''), DAC10[6][1].replace('\n', ''), DAC10[7][1].replace('\n', ''), DAC10[8][1].replace('\n', ''), DAC10[9][1].replace('\n', ''), DAC10[10][1].replace('\n', ''), DAC10[11][1].replace('\n', ''), DAC10[12][1].replace('\n', ''), DAC10[13][1].replace('\n', ''), DAC10[14][1].replace('\n', ''), DAC10[15][1].replace('\n', '')]
@@ -150,22 +159,6 @@ while True :
 			outputF.close()
 			skCounter = skCounter + 1
 
-		#inputF = open('Conf/EASI_Slow_Control_15.txt', 'r')
-		#s = inputF.readlines()
-		#inputF.close()
-		#s[3] = 'fffb\n'
-		#outputF = open('Conf/EASI_Slow_Control_15.txt', 'w')
-		#for line in s:
-		#	outputF.write(line)
-		#outputF.close()
-		#inputF = open('Conf/EASI_Slow_Control_13.txt', 'r')
-		#s = inputF.readlines()
-		#inputF.close()
-		#s[3] = 'fbfe\n'
-		#outputF = open('Conf/EASI_Slow_Control_13.txt', 'w')
-		#for line in s:
-		#	outputF.write(line)
-		#outputF.close()
 
 		inputF = open('Conf/EASI_Slow_Control_5.txt', 'r')
 		s = inputF.readlines()
@@ -192,7 +185,7 @@ while True :
 		outputF = open('Conf/EASI_Slow_Control_5.txt', 'w')
 		for line in s:
 			outputF.write(line)
-		outputF.close()
+		outputF.close()	
 
 		inputF = open('Conf/EASI_Slow_Control_6.txt', 'r')
 		s = inputF.readlines()
@@ -220,7 +213,7 @@ while True :
 		for line in s:
 			outputF.write(line)
 		outputF.close()
-	
+
 		inputF = open('Conf/EASI_Slow_Control_7.txt', 'r')
 		s = inputF.readlines()
 		inputF.close()
@@ -247,7 +240,7 @@ while True :
 		for line in s:
 			outputF.write(line)
 		outputF.close()
-	
+
 		inputF = open('Conf/EASI_Slow_Control_12.txt', 'r')
 		s = inputF.readlines()
 		inputF.close()
@@ -275,11 +268,11 @@ while True :
 			outputF.write(line)
 		outputF.close()
 
-		for Sk in skList :
-			argv = ["./SendHV_NORUMP", "Conf_HV/EASI_HV-OUT_ShutDown_" + Sk + ".txt"]
-			subprocess.call(argv)
-			argv = ["./SendFSlaves", "Conf_HV/EASI_SwHV_OFF_" + Sk + ".txt"]
-			subprocess.call(argv)
+		#for Sk in skList :
+		#	argv = ["./SendHV_NORUMP", "Conf_HV/EASI_HV-OUT_ShutDown_" + Sk + ".txt"]
+		#	subprocess.call(argv)
+		#	argv = ["./SendFSlaves", "Conf_HV/EASI_SwHV_OFF_" + Sk + ".txt"]
+		#	subprocess.call(argv)
 
 
 		for Sk in skList :
@@ -349,14 +342,27 @@ while True :
 		runCounter = 0
 		evts = 10000
 		pedEvts = 10000
-
-		inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] + '.txt', 'r')
-		s = inpFile.readlines()
-		inpFile.close()
-		RUNflag = s[0].split('\t')
+		
+		GO = 'RED'
+		while (GO == 'RED') :
+			try : 
+				arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'ENV.txt']
+				subprocess.call(arg)
+				inpFile = open('ENV.txt', 'r')
+				#inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] + '.txt', 'r')
+				s = inpFile.readlines()
+				inpFile.close()
+				RUNflag = s[0].split('\t')
+				GO = 'GREEN'
+			except :
+				print('*** File ENV corrupted!!! Retrying... ***\n')
+				time.sleep(5)
 		RUNflag[1] = RUNflag[1].replace('\n', '')
-
-		if (int(RUNflag[1]) == 1) : break
+		s[4] = s[4].replace('$WP\t', '')
+		workpoint = s[4].replace('\n', '')
+		ATC = int(workpoint)
+		if (int(RUNflag[1]) == 1) or (ATC != ATC_mem) :
+			break
 
 		print('\nContacting muNet...')
 		arg = ['./sendStart', sys.argv[3]]
@@ -367,13 +373,13 @@ while True :
 			context = zmq.Context()
 			socket = context.socket(zmq.REP)
 			socket.bind(broadPort)
-
 			buffer = socket.recv().decode('utf-8')
-			runNum = buffer.replace('@', '')
+			runNum = buffer.replace('<', '')
 			print(runNum)
 			runCounter = int(runNum.strip('\0'))
 			socket.send(b"Ok")
 			#runCounter = runCounter + 1
+			
 			print ('\nAquiring Trigger Rates and Counts...')
 		
 			arg = ['./ReadMaster_cTrigger', '60', 'MasterCMD/START_TRG_CNT_60.txt', 'MasterCMD/RD_TRG_CNT.txt']
@@ -430,12 +436,25 @@ while True :
 			subprocess.call(argv)
 			print ('I END Count\n\n')
 			
-			inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'r')
-			s = inpFile.readlines()
-			inpFile.close()
-			RUNflag = s[0].split('\t')
+			GO = 'RED'
+			while (GO == 'RED') :
+				try : 
+					arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'ENV.txt']
+					subprocess.call(arg)
+					inpFile = open('ENV.txt', 'r')
+					#inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] + '.txt', 'r')
+					s = inpFile.readlines()
+					inpFile.close()
+					RUNflag = s[0].split('\t')
+					GO = 'GREEN'
+				except :
+					print('*** File ENV corrupted!!! Retrying... ***\n')
+					time.sleep(5)
 			RUNflag[1] = RUNflag[1].replace('\n', '')
-			if (int(RUNflag[1]) == 1) : 
+			s[4] = s[4].replace('$WP\t', '')
+			workpoint = s[4].replace('\n', '')
+			ATC = int(workpoint)
+			if (int(RUNflag[1]) == 1) or (ATC != ATC_mem):
 				break
 			arg = ['./sendStart', sys.argv[3]]
 			subprocess.call(arg)
@@ -446,12 +465,25 @@ while True :
 			print ('Doing Pedestal...\n')
 
 			while(pedCounter < int(numPeds)):
-				inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'r')
-				s = inpFile.readlines()
-				inpFile.close()
-				RUNflag = s[0].split('\t')
+				GO = 'RED'
+				while (GO == 'RED') :
+					try : 
+						arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'ENV.txt']
+						subprocess.call(arg)
+						inpFile = open('ENV.txt', 'r')
+						#inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] + '.txt', 'r')
+						s = inpFile.readlines()
+						inpFile.close()
+						RUNflag = s[0].split('\t')
+						GO = 'GREEN'
+					except :
+						print('*** File ENV corrupted!!! Retrying... ***\n')
+						time.sleep(5)
 				RUNflag[1] = RUNflag[1].replace('\n', '')
-				if (int(RUNflag[1]) == 1) : 
+				s[4] = s[4].replace('$WP\t', '')
+				workpoint = s[4].replace('\n', '')
+				ATC = int(workpoint)
+				if (int(RUNflag[1]) == 1) or (ATC != ATC_mem) :
 					break
 				outputF = open('/home/DatiTB/' + sys.argv[3] + '/pedData', 'w')
 				outputF.write(str(int(round(time.time()*1000))) + '\n')
@@ -471,19 +503,36 @@ while True :
 			print("Run " + str(runCounter) + " :: Now reading")
 
 			while(adcCounter < int(numEvts)):
-				inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'r')
-				s = inpFile.readlines()
-				inpFile.close()
-				RUNflag = s[0].split('\t')
+				GO = 'RED'
+				while (GO == 'RED') :
+					try : 
+						arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'ENV.txt']
+						subprocess.call(arg)
+						inpFile = open('ENV.txt', 'r')
+						#inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] + '.txt', 'r')
+						s = inpFile.readlines()
+						inpFile.close()
+						RUNflag = s[0].split('\t')
+						GO = 'GREEN'
+					except :
+						print('*** File ENV corrupted!!! Retrying... ***\n')
+						time.sleep(5)
 				RUNflag[1] = RUNflag[1].replace('\n', '')
-				if (int(RUNflag[1]) == 1) : 
-					inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'w')
+				s[4] = s[4].replace('$WP\t', '')
+				workpoint = s[4].replace('\n', '')
+				ATC = int(workpoint)
+				if (ATC != ATC_mem) :
+					break
+				if (int(RUNflag[1]) == 1) :
+					inpFile = open('ENV.txt', 'w')
 					inpFile.write('$FLG\t2\n')
 					inpFile.write(s[1])
 					inpFile.write(s[2])
 					inpFile.write(s[3])
 					inpFile.write(s[4])
 					inpFile.close()
+					arg = ['cp', 'ENV.txt', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt']
+					subprocess.call(arg)
 					break
 
 				outputF = open('/home/DatiTB/' + sys.argv[3] + '/slaveData', 'w')
@@ -506,19 +555,31 @@ while True :
 			#	subprocess.call(arg)
 			#	arg = ["./SendFSlaves", "Conf_HV/EASI_SwHV_OFF_" + Sk + ".txt"]
 			#	subprocess.call(arg)
-			#time.sleep(30*plat)
+			#time.sleep(30 * plat)
 			#for Sk in skList :
 			#	argv = ["./SendFSlaves", "Conf_HV/EASI_SwHV_ON_" + Sk + ".txt"]
 			#	subprocess.call(argv)
 			#	argv = ["./SendHV", "Conf_HV/EASI_HV-OUT_Vbias_" + Sk + ".txt"]
 			#	subprocess.call(argv)
 			#plat = plat + 1
-
-			if (int(RUNflag[1]) == 1) : break
+			if (int(RUNflag[1]) == 1) or (ATC != ATC_mem) : 
+				break
 			print('\nContacting muNet... ')
 			arg = ['./sendStart', sys.argv[3]]
 			subprocess.call(arg)
 			print("Ready to go!\n")
+		if (int(RUNflag[1]) == 1) or (ATC != ATC_mem) : 
+			ack = '0'
+			while (ack == '0') :
+				arg = ['cp', '/home/DatiTB/DTC/ACK_' + sys.argv[3], 'ACK']
+				ackFile = open('ACK', 'r')
+				s = ackFile.readlines()
+				ackFile.close()
+				ack = s[0].replace('\n', '')
+				time.sleep(15)
+			arg = ['./sendStart', sys.argv[3]]
+			subprocess.call(arg)
+			break
 
 	print ('\n--- Shutting Down System\n')
 	for Sk in skList :
