@@ -262,12 +262,16 @@ try:
 		light = 'RED'
 		while light == 'RED' :
 			try :
-				outFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt','r')
+				arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
+				subprocess.call(arg)
+
+				#outFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt','r')
+				outFile = open('ENV_' + sys.argv[1] + '.txt','r')
 				s = outFile.readlines()
 				outFile.close()
 				light = 'GREEN'
 			except :
-				print ('\n +++ RESOURCE ENV_' + sys.argv[1] + '.txt BUSY! NEW TRY IN FEW SECONDS +++\n')
+				print ('\n +++ RESOURCE ENV.txt BUSY! NEW TRY IN FEW SECONDS +++\n')
 				time.sleep(5)
 				continue
 
@@ -303,7 +307,7 @@ try:
 		light = 'RED'
 		while light == 'RED' :
 			try :
-				outFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt','w')
+				outFile = open('ENV_' + sys.argv[1] + '.txt','w')
 		
 				if (WP_set!=-1 and WP!=WP_set) :
 					outFile.write('$FLG\t1\n')
@@ -317,6 +321,10 @@ try:
 				outFile.write('$WP\t' + str(WP_set) + '\n')
 				outFile.close()
 				light = 'GREEN'
+
+				arg = ['mv', 'ENV_' + sys.argv[1] + '.txt', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt']
+				subprocess.call(arg)
+
 			except :
 				print ('\n +++ RESOURCE ENV_' + sys.argv[1] + '.txt BUSY! NEW TRY IN FEW SECONDS +++\n')
 				time.sleep(5)
@@ -376,7 +384,10 @@ try:
 				light = 'RED'
 				while light == 'RED' :
 					try :
-						outFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt','r')
+						arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
+						subprocess.call(arg)
+						#outFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt','r')
+						outFile = open('ENV_' + sys.argv[1] + '.txt','r')
 						s = outFile.readlines()
 						outFile.close()
 						light = 'GREEN'

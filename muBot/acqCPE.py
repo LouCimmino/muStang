@@ -434,7 +434,7 @@ while True :
 					
 			argv = ["mv", "/home/DatiTB/" + sys.argv[3] +"/Counts_LAB", "/home/DatiTB/" + sys.argv[3] + "/SlavesCount_run" + str(runCounter)]
 			subprocess.call(argv)
-			print ('I END Count\n\n')
+			print ('Run acquisition rates measured!!!\n\n')
 			
 			GO = 'RED'
 			while (GO == 'RED') :
@@ -454,14 +454,16 @@ while True :
 			s[4] = s[4].replace('$WP\t', '')
 			workpoint = s[4].replace('\n', '')
 			ATC = int(workpoint)
-			if (int(RUNflag[1]) == 1) or (ATC != ATC_mem):
-				break
+	
 			arg = ['./sendStart', sys.argv[3]]
 			subprocess.call(arg)
 			
+			if (int(RUNflag[1]) == 1) or (ATC != ATC_mem):
+				break
+
 			pedCounter = 0
 			adcCounter = 0
-			
+
 			print ('Doing Pedestal...\n')
 
 			while(pedCounter < int(numPeds)):
@@ -485,6 +487,7 @@ while True :
 				ATC = int(workpoint)
 				if (int(RUNflag[1]) == 1) or (ATC != ATC_mem) :
 					break
+				
 				outputF = open('/home/DatiTB/' + sys.argv[3] + '/pedData', 'w')
 				outputF.write(str(int(round(time.time()*1000))) + '\n')
 				outputF.close()		
@@ -500,7 +503,7 @@ while True :
 				arg = ['mv', '/home/DatiTB/' + sys.argv[3] + '/pedData', '/home/DatiTB/' + sys.argv[3] + '/pedData_evts' + str(pedEvts*int(numPeds)) + '_run' + str(runCounter) + '_sr' + str(pedCounter)]
 				subprocess.call(arg)
 			
-			print("Run " + str(runCounter) + " :: Now reading")
+			print("Run " + str(runCounter) + " :: Now acquiring")
 
 			while(adcCounter < int(numEvts)):
 				GO = 'RED'
@@ -521,18 +524,7 @@ while True :
 				s[4] = s[4].replace('$WP\t', '')
 				workpoint = s[4].replace('\n', '')
 				ATC = int(workpoint)
-				if (ATC != ATC_mem) :
-					break
-				if (int(RUNflag[1]) == 1) :
-					inpFile = open('ENV.txt', 'w')
-					inpFile.write('$FLG\t2\n')
-					inpFile.write(s[1])
-					inpFile.write(s[2])
-					inpFile.write(s[3])
-					inpFile.write(s[4])
-					inpFile.close()
-					arg = ['cp', 'ENV.txt', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt']
-					subprocess.call(arg)
+				if (int(RUNflag[1]) == 1) or (ATC != ATC_mem) :
 					break
 
 				outputF = open('/home/DatiTB/' + sys.argv[3] + '/slaveData', 'w')
@@ -562,21 +554,51 @@ while True :
 			#	argv = ["./SendHV", "Conf_HV/EASI_HV-OUT_Vbias_" + Sk + ".txt"]
 			#	subprocess.call(argv)
 			#plat = plat + 1
+			GO = 'RED'
+			while (GO == 'RED') :
+				try : 
+					arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt', 'ENV.txt']
+					subprocess.call(arg)
+					inpFile = open('ENV.txt', 'r')
+					#inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[3] + '.txt', 'r')
+					s = inpFile.readlines()
+					inpFile.close()
+					RUNflag = s[0].split('\t')
+					GO = 'GREEN'
+				except :
+					print('*** File ENV corrupted!!! Retrying... ***\n')
+					time.sleep(5)
+			RUNflag[1] = RUNflag[1].replace('\n', '')
+			s[4] = s[4].replace('$WP\t', '')
+			workpoint = s[4].replace('\n', '')
+			ATC = int(workpoint)
 			if (int(RUNflag[1]) == 1) or (ATC != ATC_mem) : 
 				break
 			print('\nContacting muNet... ')
 			arg = ['./sendStart', sys.argv[3]]
 			subprocess.call(arg)
 			print("Ready to go!\n")
+		
+		if (int(RUNflag[1]) == 1) :
+			inpFile = open('ENV.txt', 'w')
+			inpFile.write('$FLG\t2\n')
+			inpFile.write(s[1])
+			inpFile.write(s[2])
+			inpFile.write(s[3])
+			inpFile.write('$WP\t' + s[4])
+			inpFile.close()
+			arg = ['cp', 'ENV.txt', '/home/DatiTB/DTC/ENV_' + sys.argv[3] +'.txt']
+			subprocess.call(arg)
 		if (int(RUNflag[1]) == 1) or (ATC != ATC_mem) : 
 			ack = '0'
 			while (ack == '0') :
 				arg = ['cp', '/home/DatiTB/DTC/ACK_' + sys.argv[3], 'ACK']
+				subprocess.call(arg)
 				ackFile = open('ACK', 'r')
 				s = ackFile.readlines()
 				ackFile.close()
 				ack = s[0].replace('\n', '')
-				time.sleep(15)
+				time.sleep(15)				
 			arg = ['./sendStart', sys.argv[3]]
 			subprocess.call(arg)
 			break

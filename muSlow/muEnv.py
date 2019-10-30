@@ -13,6 +13,8 @@ while (True) :
 	TMP = -273
 	print('\n --- READING ENVIRONMENTAL SENSORS --- \n ')
 	while (RH > 110):
+		RH_MEM = RH
+		TMP_MEM = TMP
 		#while (h==None and t==None) :
 		h,t = dht.read_retry(dht.DHT22, 14)
 		if h!=None : RH = round(float(h), 2)

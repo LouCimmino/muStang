@@ -10,7 +10,7 @@ if sys.argv[1] == 'ROSSO' :
 	muClient = 'tcp://192.168.77.32:5000'
 	broadPort = 'tcp://0.0.0.0:5000'
 elif sys.argv[1] == 'NERO' :
-	muClient = 'tcp://192.168.77.82:6000'
+	muClient = 'tcp://192.168.77.86:6000'
 	broadPort = 'tcp://0.0.0.0:6000'
 elif sys.argv[1] == 'BLU' :
 	muClient = 'tcp://192.168.77.136:7000'

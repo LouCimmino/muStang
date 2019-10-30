@@ -72,6 +72,11 @@ except:
 pedSr = 5
 adcSr = 4
 
+ackFile = open('/home/DatiTB/DTC/ACK_' + sys.argv[1], 'w')
+ackFile.write('0')
+ackFile.close()
+ack = 0
+
 arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
 subprocess.call(arg)
 inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r+')
@@ -80,7 +85,7 @@ RUNflag = s[0].split('\t')
 RUNflag[1] = RUNflag[1].replace('\n', '')
 inpFile.close()
 while (int(RUNflag[1]) != 0):
-	inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'r+')
+	inpFile = open('/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'r')
 	s = inpFile.readlines()
 	RUNflag = s[0].split('\t')
 	RUNflag[1] = RUNflag[1].replace('\n', '')
@@ -102,6 +107,12 @@ arg = ['./wait2go', broadPort]
 subprocess.call(arg)	
 
 while True :
+	if (ack == 1):
+		arg = ['./wait2go', broadPort]
+		subprocess.call(arg)	
+		print('\n*** STOP Condition found!!! \n')
+		ack = 0
+		
 	now = datetime.datetime.now()
 	TimeS = now.strftime("%Y-%m-%d %H:%M:%S")
 	
@@ -114,11 +125,11 @@ while True :
 	outs = ''
 	out_byte = ''
 	
-	print ('Wait...\n')
+	print ('\n--- Checking environmental conditions ---\n')
 	
 	arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
 	subprocess.call(arg)
-	inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r+')
+	inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r')
 	s = inpFile.readlines()
 	RUNflag = s[0].split('\t')
 	RUNflag[1] = RUNflag[1].replace('\n', '')
@@ -126,16 +137,12 @@ while True :
 	while (int(RUNflag[1]) != 0):
 		arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
 		subprocess.call(arg)
-		inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r+')
+		inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r')
 		s = inpFile.readlines()
 		RUNflag = s[0].split('\t')
 		RUNflag[1] = RUNflag[1].replace('\n', '')
 		inpFile.close()
 		time.sleep(30)
-
-	ackFile = open('/home/DatiTB/DTC/ACK_' + sys.argv[1], 'w')
-	ackFile.write('0')
-	ackFile.close()
 
 	print ('\n\n' + TimeS + ' MURAVES_' + sys.argv[1] + '@Vesuvio')
 	print ('__________________________________________________________\n')
@@ -154,7 +161,7 @@ while True :
 
 	arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
 	subprocess.call(arg)
-	inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r+')
+	inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r')
 	s = inpFile.readlines()
 	RUNflag = s[0].split('\t')
 	RUNflag[1] = RUNflag[1].replace('\n', '')
@@ -162,7 +169,7 @@ while True :
 	while (int(RUNflag[1]) != 0):
 		arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
 		subprocess.call(arg)
-		inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r+')
+		inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r')
 		s = inpFile.readlines()
 		RUNflag = s[0].split('\t')
 		RUNflag[1] = RUNflag[1].replace('\n', '')
@@ -175,9 +182,17 @@ while True :
 	RUNhum[1] = RUNhum[1].replace('\n', '')
 	RUNwp = s[4].split('\t')
 	RUNwp[1] = RUNwp[1].replace('\n', '')
+	WP_mem = RUNwp[1]
+
+	print ('*** Sync and wait for acquisition rates...')
+	time.sleep(20)
 
 	arg = ['./sendRuNum', str(ID), muClient]
 	subprocess.call(arg)
+
+	ackFile = open('/home/DatiTB/DTC/ACK_' + sys.argv[1], 'w')
+	ackFile.write('0')
+	ackFile.close()
 
 	inputF = open('/home/DatiTB/DTC/POS_' + sys.argv[1], 'r')
 	POS = inputF.readline()
@@ -283,20 +298,24 @@ while True :
 		arg = ['gzip', '-f', '/home/DatiTB/' + sys.argv[1] + '/slaveData_evts' + str(adcSr*10000) + '_run' + str(ID-1) + '_sr' + str(i)]
 		subprocess.call(arg)
 
-	arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
-	subprocess.call(arg)
-	inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r+')
-	s = inpFile.readlines()
-	inpFile.close()
-	RUNflag = s[0].split('\t')
-	RUNflag[1] = RUNflag[1].replace('\n', '')
-	print('*** Wait to go again... ***')
-	if (int(RUNflag[1]) == 1):
-		print('*** STOP Condition found!!! ***\n')
-	else :
-		print('*** Keep going! ***\n')
+	print('*** Wait to go again...')
 	ackFile = open('/home/DatiTB/DTC/ACK_' + sys.argv[1], 'w')
 	ackFile.write('1')
 	ackFile.close()
 	arg = ['./wait2go', broadPort]
 	subprocess.call(arg)
+
+	arg = ['cp', '/home/DatiTB/DTC/ENV_' + sys.argv[1] + '.txt', 'ENV_' + sys.argv[1] + '.txt']
+	subprocess.call(arg)
+	inpFile = open('ENV_' + sys.argv[1] + '.txt', 'r')
+	s = inpFile.readlines()
+	inpFile.close()
+	RUNflag = s[0].split('\t')
+	RUNflag[1] = RUNflag[1].replace('\n', '')
+	RUNwp = s[4].split('\t')
+	RUNwp[1] = RUNwp[1].replace('\n', '')
+
+	if (int(RUNflag[1]) == 1) or (int(RUNwp[1]) != int(WP_mem)):
+		ack = 1
+	else :
+		print('*** Keep going!\n')
